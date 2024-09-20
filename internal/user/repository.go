@@ -22,7 +22,7 @@ type (
 	}
 )
 
-func NewRepository(db DB, l *log.Logger) Repository {
+func NewRepo(db DB, l *log.Logger) Repository {
 	return &repo{
 		db:  db,
 		log: l,
