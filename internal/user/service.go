@@ -11,7 +11,7 @@ import (
 type (
 	Service interface {
 		Create(ctx context.Context, firstName, lastName, email string) (*domain.User, error)
-		GetAll(ctx context.Context) ([]*domain.User, error)
+		GetAll(ctx context.Context) ([]domain.User, error)
 	}
 
 	service struct {

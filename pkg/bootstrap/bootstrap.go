@@ -2,16 +2,9 @@ package bootstrap
 
 import (
 	"Gym/internal/domain"
-	_ "Gym/internal/domain"
 	"Gym/internal/user"
-	_ "Gym/internal/user"
-	_ "context"
-	_ "fmt"
 	"log"
-	_ "log"
-	_ "net/http"
 	"os"
-	_ "os"
 )
 
 func NewLogger() *log.Logger {
