@@ -5,7 +5,7 @@ import (
 	"Gym/pkg/transport"
 	"context"
 	"encoding/json"
-	"fmt"
+	fmt "fmt"
 	"log"
 	"net/http"
 	"strconv"

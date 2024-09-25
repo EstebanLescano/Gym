@@ -39,17 +39,26 @@ func (t *transport) Server(
 ) {
 	data, err := decode(t.ctx, t.r)
 	if err != nil {
-		encodeError(t.ctx, t.w, err)
+		err := encodeError(t.ctx, t.w, err)
+		if err != nil {
+			return
+		}
 		return
 	}
 
 	res, err := endpoint(t.ctx, data)
 	if err != nil {
-		encodeError(t.ctx, t.w, err)
+		err := encodeError(t.ctx, t.w, err)
+		if err != nil {
+			return
+		}
 	}
 
 	if err := encode(t.ctx, t.w, res); err != nil {
-		encodeError(t.ctx, t.w, err)
+		err := encodeError(t.ctx, t.w, err)
+		if err != nil {
+			return
+		}
 		return
 	}
 }
