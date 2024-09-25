@@ -3,6 +3,7 @@ package transport
 import (
 	"context"
 	"net/http"
+	"strings"
 )
 
 type Transport interface {
@@ -51,4 +52,16 @@ func (t *transport) Server(
 		encodeError(t.ctx, t.w, err)
 		return
 	}
+}
+
+// esta funcion es para que acomode el path y no lo deje con espacion o le agregue la /
+func Clean(url string) ([]string, int) {
+	if url[0] != '/' {
+		url = "/" + url
+	}
+	if url[len(url)-1] != '/' {
+		url += "/"
+	}
+	parts := strings.Split(url, "/")
+	return parts, len(parts)
 }

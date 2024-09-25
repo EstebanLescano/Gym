@@ -3,6 +3,7 @@ package main
 import (
 	"Gym/internal/user"
 	"Gym/pkg/bootstrap"
+	"Gym/pkg/handler"
 
 	"context"
 	"fmt"
@@ -21,7 +22,7 @@ func main() {
 
 	ctx := context.Background()
 
-	server.HandleFunc("/users", user.MakeEndpoint(ctx, service))
+	handler.NewUserHttpServer(ctx, server, user.MakeEndpoint(ctx, service))
 
 	fmt.Println("Server started at port 8080")
 	log.Fatal(http.ListenAndServe(":8080", server))
