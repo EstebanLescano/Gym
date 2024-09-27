@@ -5,7 +5,7 @@ import (
 	"Gym/pkg/transport"
 	"context"
 	"encoding/json"
-	fmt "fmt"
+	. "fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -36,7 +36,7 @@ func UserServer(ctx context.Context, endpoint user.Endpoint) func(http.ResponseW
 			switch pathSize {
 			case 3:
 				end = endpoint.GetAll
-				deco = decodeGetUser
+				deco = decodeGetAllUser
 			case 4:
 				end = endpoint.Get
 				deco = decodeGetUser
@@ -47,6 +47,12 @@ func UserServer(ctx context.Context, endpoint user.Endpoint) func(http.ResponseW
 			case 3:
 				end = endpoint.Create
 				deco = decodeCreateUser
+			}
+		case http.MethodPatch:
+			switch pathSize {
+			case 4:
+				end = endpoint.Update
+				deco = decoUpdateUser
 			}
 		}
 		if end != nil && deco != nil {
@@ -72,14 +78,28 @@ func decodeGetUser(ctx context.Context, r *http.Request) (interface{}, error) {
 	}, nil
 }
 
+func decoUpdateUser(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req user.UpdateReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+	params := ctx.Value("params").(map[string]string)
+	id, err := strconv.ParseUint(params["userID"], 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	req.ID = id
+	return req, nil
+}
+
 func decodeGetAllUser(ctx context.Context, r *http.Request) (interface{}, error) {
-	return nil, fmt.Errorf("Error getUser")
+	return nil, Errorf("Error getUser")
 }
 
 func decodeCreateUser(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req user.CreateReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, fmt.Errorf("fail to decode body '%v'", err.Error())
+		return nil, Errorf("fail to decode body '%v'", err.Error())
 	}
 	return req, nil
 }
@@ -89,23 +109,39 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 	if err != nil {
 		return err
 	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	status := http.StatusOK
 	w.WriteHeader(status)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	fmt.Fprintf(w, `{"status":%d, "data":%s}`, status, data)
+	_, err = w.Write(data)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func encodeError(ctx context.Context, w http.ResponseWriter, err error) error {
 	status := http.StatusInternalServerError
-	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	fmt.Fprintf(w, `{"status":%d, "message":"%s"}`, status, err.Error())
+	w.WriteHeader(status)
+	errorResponse := map[string]interface{}{
+		"status":  status,
+		"message": err.Error(),
+	}
+	data, jsonErr := json.Marshal(errorResponse)
+	if jsonErr != nil {
+		http.Error(w, `{"status":500, "message":"Error serializing error response"}`, http.StatusInternalServerError)
+		return jsonErr
+	}
+
+	_, writeErr := w.Write(data)
+	if writeErr != nil {
+		return writeErr
+	}
 	return nil
 }
 
 func InvalidMethod(w http.ResponseWriter) {
 	status := http.StatusNotFound
 	w.WriteHeader(status)
-	fmt.Fprintf(w, `{"status":%d, "message: "method doesn't exist'}`, status)
+	Fprintf(w, `{"status":%d, "message: "method doesn't exist'}`, status)
 }
