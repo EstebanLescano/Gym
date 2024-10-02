@@ -6,6 +6,7 @@ import (
 	. "fmt"
 	"github.com/EstebanLescano/Gym/internal/user"
 	"github.com/EstebanLescano/Gym/pkg/transport"
+	"github.com/EstebanLescano/go-fundamentals-response/response"
 	"log"
 	"net/http"
 	"strconv"
@@ -104,40 +105,19 @@ func decodeCreateUser(ctx context.Context, r *http.Request) (interface{}, error)
 	return req, nil
 }
 
-func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	data, err := json.Marshal(response)
-	if err != nil {
-		return err
-	}
+func encodeResponse(ctx context.Context, w http.ResponseWriter, resp interface{}) error {
+	r := resp.(response.Response)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	status := http.StatusOK
-	w.WriteHeader(status)
-	_, err = w.Write(data)
-	if err != nil {
-		return err
-	}
-	return nil
+	w.WriteHeader(r.StatusCode())
+
+	return json.NewEncoder(w).Encode(resp)
 }
 
 func encodeError(ctx context.Context, w http.ResponseWriter, err error) error {
-	status := http.StatusInternalServerError
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
-	errorResponse := map[string]interface{}{
-		"status":  status,
-		"message": err.Error(),
-	}
-	data, jsonErr := json.Marshal(errorResponse)
-	if jsonErr != nil {
-		http.Error(w, `{"status":500, "message":"Error serializing error response"}`, http.StatusInternalServerError)
-		return jsonErr
-	}
-
-	_, writeErr := w.Write(data)
-	if writeErr != nil {
-		return writeErr
-	}
-	return nil
+	resp := err.(response.Response)
+	w.WriteHeader(resp.StatusCode())
+	return json.NewEncoder(w).Encode(resp)
 }
 
 func InvalidMethod(w http.ResponseWriter) {
