@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"Gym/internal/user"
-	"Gym/pkg/transport"
 	"context"
 	"encoding/json"
 	. "fmt"
+	"github.com/EstebanLescano/Gym/internal/user"
+	"github.com/EstebanLescano/Gym/pkg/transport"
 	"log"
 	"net/http"
 	"strconv"

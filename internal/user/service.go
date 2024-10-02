@@ -1,8 +1,8 @@
 package user
 
 import (
-	"Gym/internal/domain"
 	"context"
+	"github.com/EstebanLescano/Gym/internal/domain"
 	"log"
 )
 

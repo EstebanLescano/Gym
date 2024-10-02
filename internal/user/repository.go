@@ -1,9 +1,9 @@
 package user
 
 import (
-	"Gym/internal/domain"
 	"context"
 	"errors"
+	"github.com/EstebanLescano/Gym/internal/domain"
 	"log"
 	"slices"
 )

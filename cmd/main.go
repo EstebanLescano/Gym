@@ -1,12 +1,11 @@
 package main
 
 import (
-	"Gym/internal/user"
-	"Gym/pkg/bootstrap"
-	"Gym/pkg/handler"
-
 	"context"
 	"fmt"
+	"github.com/EstebanLescano/Gym/internal/user"
+	"github.com/EstebanLescano/Gym/pkg/bootstrap"
+	"github.com/EstebanLescano/Gym/pkg/handler"
 	"log"
 	"net/http"
 )

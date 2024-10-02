@@ -1,8 +1,8 @@
 package bootstrap
 
 import (
-	"Gym/internal/domain"
-	"Gym/internal/user"
+	"github.com/EstebanLescano/Gym/internal/domain"
+	"github.com/EstebanLescano/Gym/internal/user"
 	"log"
 	"os"
 )
