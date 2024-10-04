@@ -1,0 +1,7 @@
+version: "3.5"
+services:
+    go-course-user:
+        platform: linux/amb64
+        container_name: go-course-users
+        build:
+            context: ./.dockers
