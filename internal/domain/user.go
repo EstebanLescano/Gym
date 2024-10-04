@@ -1,10 +1,9 @@
 package domain
 
-import "image"
+import _ "image"
 
 type User struct {
 	ID       uint64 `json:"id"`
-	Avatar   image.NRGBA64
 	Name     string `json:"name"`
 	LastName string `json:"last_name"`
 	Document uint64 `json:"document"`
