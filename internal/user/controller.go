@@ -91,10 +91,10 @@ func makeGetEndpoint(s Service) Controller {
 func makeUpdateEndpoint(s Service) Controller {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(UpdateReq)
-		if req.Name == "" {
+		if req.Name != nil && *req.Name == "" {
 			return nil, response.BadRequest(ErrFirstNameRequired.Error())
 		}
-		if req.Last_name == "" {
+		if req.Last_name != nil && *req.Last_name == "" {
 			return nil, response.BadRequest(ErrLastNameRequired.Error())
 		}
 		if err := s.Update(ctx, req.ID, req.Name, req.Last_name, req.Email); err != nil {

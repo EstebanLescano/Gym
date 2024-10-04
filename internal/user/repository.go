@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	"errors"
+	_ "errors"
 	"github.com/EstebanLescano/Gym/internal/domain"
 	"log"
 	"slices"
@@ -51,7 +51,7 @@ func (r *repo) Get(ctx context.Context, id uint64) (*domain.User, error) {
 		return v.ID == id
 	})
 	if index < 0 {
-		return nil, errors.New("user not found")
+		return nil, ErrNotFound{id}
 	}
 	return &r.db.Users[index], nil
 }
