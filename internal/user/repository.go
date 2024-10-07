@@ -29,16 +29,41 @@ func NewRepo(db *sql.DB, l *log.Logger) Repository {
 }
 
 func (r *repo) Create(ctx context.Context, user *domain.User) error {
-	/*	r.db.MaxUserID++
-		user.ID = r.db.MaxUserID
-		r.db.Users = append(r.db.Users, *user)
-		r.log.Println("Repository create")*/
+	sqlQ := "INSERT INTO users(name, last_name, email) VALUES(?,?,?)"
+	res, err := r.db.Exec(sqlQ, user.Name, user.LastName, user.Email)
+	if err != nil {
+		r.log.Println(err.Error())
+		return err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		r.log.Println(err.Error())
+		return err
+	}
+	user.ID = uint64(id)
+	r.log.Printf("User created with id: %d", id)
 	return nil
 }
 
 func (r *repo) GetAll(ctx context.Context) ([]domain.User, error) {
-	/*r.log.Println("Repository GetAll")
-	return r.db.Users, nil*/
+	var user []domain.User
+	sqlQ := "SELECT id, name, last_name, email FROM users"
+	rows, err := r.db.Query(sqlQ)
+	if err != nil {
+		r.log.Println(err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var u domain.User
+		err := rows.Scan(&u.ID, &u.Name, &u.LastName, &u.Email)
+		if err != nil {
+			r.log.Println(err.Error())
+			return nil, err
+		}
+		user = append(user, u)
+	}
+	r.log.Printf("Users retrieved with %d users", len(user))
 	return nil, nil
 }
 
