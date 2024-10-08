@@ -7,7 +7,7 @@ services:
             context: ./.dockers/mysql
             dockerfile: Dockerfile
         environment:
-            MYSQL_ROOT_PASSWORD: root
+            MYSQL_ROOT_PASSWORD: 3st3b4nL#
             MYSQL_DATABASE: go_course_users
         ports:
             -   "3336:3306"
