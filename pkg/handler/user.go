@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	. "fmt"
+	"fmt"
 	"github.com/EstebanLescano/Gym/internal/user"
 	"github.com/EstebanLescano/Gym/pkg/transport"
 	"github.com/EstebanLescano/go-fundamentals-response/response"
@@ -79,7 +79,7 @@ func decodeGetUser(ctx context.Context, r *http.Request) (interface{}, error) {
 	}
 	id, err := strconv.ParseUint(params["userID"], 10, 64)
 	if err != nil {
-		return nil, err
+		return nil, response.BadRequest(err.Error())
 	}
 	return user.GetReq{
 		ID: id,
@@ -97,7 +97,7 @@ func decoUpdateUser(ctx context.Context, r *http.Request) (interface{}, error) {
 	}
 	id, err := strconv.ParseUint(params["userID"], 10, 64)
 	if err != nil {
-		return nil, err
+		return nil, response.BadRequest(err.Error())
 	}
 	req.ID = id
 	return req, nil
@@ -114,7 +114,7 @@ func decodeCreateUser(ctx context.Context, r *http.Request) (interface{}, error)
 	}
 	var req user.CreateReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, Errorf("fail to decode body '%v'", err.Error())
+		return nil, response.BadRequest(fmt.Sprintf("fail to decode body '%v'", err.Error()))
 	}
 	return req, nil
 }
@@ -164,5 +164,5 @@ func encodeError(ctx context.Context, w http.ResponseWriter, err error) error {
 func InvalidMethod(w http.ResponseWriter) {
 	status := http.StatusNotFound
 	w.WriteHeader(status)
-	Fprintf(w, `{"status":%d, "message": "method doesn't exist"}`, status)
+	fmt.Fprintf(w, `{"status":%d, "message": "method doesn't exist"}`, status)
 }
