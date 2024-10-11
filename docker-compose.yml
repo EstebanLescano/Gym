@@ -2,13 +2,13 @@ version: "3.5"
 services:
     go-course-user:
         platform: linux/amd64
-        container_name: go-course-users
+        container_name: Gym-users
         build:
             context: ./.dockers/mysql
             dockerfile: Dockerfile
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: go_course_users
+            MYSQL_DATABASE: Gym_users
         ports:
             -   "3336:3306"
         volumes:

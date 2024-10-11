@@ -6,11 +6,15 @@ import (
 	"github.com/EstebanLescano/Gym/internal/user"
 	"github.com/EstebanLescano/Gym/pkg/bootstrap"
 	"github.com/EstebanLescano/Gym/pkg/handler"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	_ = godotenv.Load() //esta es una libreria que se usa y asi como esta ya sabe que va y busca el .env donde estan las variables y las ejecuta
+
 	server := http.NewServeMux()
 
 	db, err := bootstrap.NewDB()
@@ -30,6 +34,7 @@ func main() {
 
 	handler.NewUserHttpServer(ctx, server, user.MakeEndpoint(ctx, service))
 
-	fmt.Println("Server started at port 8080")
-	log.Fatal(http.ListenAndServe(":8080", server))
+	port := os.Getenv("PORT")
+	fmt.Println("Server started at port ", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), server))
 }
