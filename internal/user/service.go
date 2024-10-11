@@ -10,10 +10,10 @@ import (
 // forma de trabajarlo para tener todx testeado
 type (
 	Service interface {
-		Create(ctx context.Context, firstName, lastName, email string) (*domain.User, error)
+		Create(ctx context.Context, name, lastName, document, email string) (*domain.User, error)
 		GetAll(ctx context.Context) ([]domain.User, error)
 		Get(ctx context.Context, id uint64) (*domain.User, error)
-		Update(ctx context.Context, id uint64, firstName, lastName, email *string) error
+		Update(ctx context.Context, id uint64, name, lastName, document, email *string) error
 	}
 
 	service struct {
@@ -29,10 +29,11 @@ func NewService(l *log.Logger, repo Repository) Service {
 	}
 }
 
-func (s service) Create(ctx context.Context, firstName, lastName, email string) (*domain.User, error) {
+func (s service) Create(ctx context.Context, name, lastName, document, email string) (*domain.User, error) {
 	user := &domain.User{
-		Name:     firstName,
+		Name:     name,
 		LastName: lastName,
+		Document: document,
 		Email:    email,
 	}
 	if err := s.repo.Create(ctx, user); err != nil {
@@ -50,11 +51,16 @@ func (s service) GetAll(ctx context.Context) ([]domain.User, error) {
 }
 
 func (s service) Get(ctx context.Context, id uint64) (*domain.User, error) {
-	return s.repo.Get(ctx, id)
+	user, err := s.repo.Get(ctx, id)
+	if err != nil {
+		s.log.Println("Error retrieving user:", err)
+		return nil, err
+	}
+	return user, nil
 }
 
-func (s service) Update(ctx context.Context, id uint64, firstName, lastName, email *string) error {
-	if err := s.repo.Update(ctx, id, firstName, lastName, email); err != nil {
+func (s service) Update(ctx context.Context, id uint64, firstName, lastName, document, email *string) error {
+	if err := s.repo.Update(ctx, id, firstName, lastName, document, email); err != nil {
 		return err
 	}
 	return nil

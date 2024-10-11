@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	. "fmt"
 	"github.com/EstebanLescano/Gym/internal/user"
 	"github.com/EstebanLescano/Gym/pkg/transport"
@@ -16,7 +17,7 @@ func NewUserHttpServer(ctx context.Context, router *http.ServeMux, endpoint user
 	router.HandleFunc("/users/", UserServer(ctx, endpoint))
 }
 
-func UserServer(ctx context.Context, endpoint user.Endpoint) func(http.ResponseWriter, *http.Request) {
+func UserServer(ctx context.Context, endpoint user.Endpoint) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		url := r.URL.Path
@@ -69,7 +70,10 @@ func UserServer(ctx context.Context, endpoint user.Endpoint) func(http.ResponseW
 }
 
 func decodeGetUser(ctx context.Context, r *http.Request) (interface{}, error) {
-	params := ctx.Value("params").(map[string]string)
+	params, ok := ctx.Value("params").(map[string]string)
+	if !ok || params["userID"] == "" {
+		return nil, errors.New("missing user ID")
+	}
 	id, err := strconv.ParseUint(params["userID"], 10, 64)
 	if err != nil {
 		return nil, err
@@ -94,7 +98,7 @@ func decoUpdateUser(ctx context.Context, r *http.Request) (interface{}, error) {
 }
 
 func decodeGetAllUser(ctx context.Context, r *http.Request) (interface{}, error) {
-	return nil, Errorf("Error getUser")
+	return nil, nil
 }
 
 func decodeCreateUser(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -106,16 +110,36 @@ func decodeCreateUser(ctx context.Context, r *http.Request) (interface{}, error)
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, resp interface{}) error {
-	r := resp.(response.Response)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	// Verificar si la respuesta es nil
+	if resp == nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return json.NewEncoder(w).Encode(map[string]string{
+			"error": "No response from server",
+		})
+	}
+	// Intentar convertir la respuesta a response.Response
+	r, ok := resp.(response.Response)
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+		return json.NewEncoder(w).Encode(map[string]string{
+			"error": "Invalid response type",
+		})
+	}
+	// Si es una respuesta válida, devolverla
 	w.WriteHeader(r.StatusCode())
-
-	return json.NewEncoder(w).Encode(resp)
+	return json.NewEncoder(w).Encode(r)
 }
 
 func encodeError(ctx context.Context, w http.ResponseWriter, err error) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	resp := err.(response.Response)
+	var resp response.Response
+	if ok := errors.As(err, &resp); !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+		return json.NewEncoder(w).Encode(map[string]string{
+			"error": err.Error(),
+		})
+	}
 	w.WriteHeader(resp.StatusCode())
 	return json.NewEncoder(w).Encode(resp)
 }
@@ -123,5 +147,5 @@ func encodeError(ctx context.Context, w http.ResponseWriter, err error) error {
 func InvalidMethod(w http.ResponseWriter) {
 	status := http.StatusNotFound
 	w.WriteHeader(status)
-	Fprintf(w, `{"status":%d, "message: "method doesn't exist'}`, status)
+	Fprintf(w, `{"status":%d, "message": "method doesn't exist"}`, status)
 }
