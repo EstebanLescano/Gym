@@ -97,10 +97,11 @@ func tokenVerify(token string) error {
 	return nil
 }
 
-func encodeResponse(c *gin.Context, resp interface{}) {
+func encodeResponse(c *gin.Context, resp interface{}) error {
 	r := resp.(response.Response)
 	c.Header("Content-Type", "application/json; charset=utf-8")
 	c.JSON(r.StatusCode(), resp)
+	return nil
 }
 
 func encodeError(c *gin.Context, err error) {
