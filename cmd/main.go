@@ -6,6 +6,8 @@ import (
 	"github.com/EstebanLescano/Gym/internal/user"
 	"github.com/EstebanLescano/Gym/pkg/bootstrap"
 	"github.com/EstebanLescano/Gym/pkg/handler"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
@@ -14,6 +16,10 @@ import (
 
 func main() {
 	_ = godotenv.Load() //esta es una libreria que se usa y asi como esta ya sabe que va y busca el .env donde estan las variables y las ejecuta
+
+	splash := fiber.New() //libreria del frame parecida a express en react
+
+	splash.Use(cors.New()) //esta libreria es para que no tiere errore en el fron por los cors
 
 	db, err := bootstrap.NewDB()
 	if err != nil {
